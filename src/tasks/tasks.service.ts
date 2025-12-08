@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './entities/task.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class TasksService {
-  private tasks: Task[] = [];
+  constructor(
+    @InjectRepository(Task)
+    private taskRepository: Repository<Task>,
+  ) {}
   private countID = 1;
 
   create(createTaskDto: CreateTaskDto) {
@@ -15,23 +19,14 @@ export class TasksService {
       complete: false,
     };
 
-    this.tasks.push(newTask);
-    return newTask
+    return this.taskRepository.save(newTask);
   }
 
-  findAll() {
-    return this.tasks;
+  findAll(): Promise<Task[]> {
+    return this.taskRepository.find();
   }
 
   findOne(id: number) {
     return `This action returns a #${id} task`;
-  }
-
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} task`;
   }
 }
